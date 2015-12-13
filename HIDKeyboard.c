@@ -41,32 +41,83 @@ keybrdprt_t key;
  *------------------------------------------------------------------------------*/
 void GetInReport (void)
 {
+	uint8_t pbdata=0;
+
+	if ((LPC_GPIO1->DATA & KBD_SW1) == 0)
+	{
+		pbdata|=1;
+	}
+	if ((LPC_GPIO1->DATA & KBD_SW2) == 0)
+	{
+		pbdata|=2;
+	}
+	else if ((LPC_GPIO1->DATA & KBD_SW3) == 0)
+	{
+		pbdata|=4;
+	}
+	else if ((LPC_GPIO1->DATA & KBD_SW4) == 0)
+	{
+		pbdata|=8;
+	}
+	else if ((LPC_GPIO1->DATA & KBD_SW5) == 0)
+	{
+		pbdata|=0x10;
+	}
 	if ((LPC_GPIO1->DATA & KBD_S3) == 0)
 	{
-		key.modifier=0;
-		key.keycode[0]=0x12;
-		key.keycode[1]=0x11;
-		key.keycode[2]=0x5d;//0x22; geeft een haakje !
-		key.keycode[3]=0x07;
-		key.keycode[4]=0x0c;
-		key.keycode[5]=0x28;
+		pbdata|=0x20;
 	}
-	else if ((LPC_GPIO2->DATA & KBD_S4) == 0)
+	if ((LPC_GPIO2->DATA & KBD_S4) == 0)
 	{
-		key.modifier=0;
-		key.keycode[0]=0x18;
-	}
-	else
-	{
-		key.modifier=0;
-		key.keycode[0]=0;
-		key.keycode[1]=0;
-		key.keycode[2]=0;
-		key.keycode[3]=0;
-		key.keycode[4]=0;
-		key.keycode[5]=0;
+		pbdata|=0x40;
 	}
 	
+	switch(pbdata)
+	{
+		case 0x01:
+			key.modifier=0;
+			key.keycode[0]=0x14;			// this an a not q ! 
+			break;
+		case 0x02:
+			key.modifier=0;
+			key.keycode[0]=0x05;
+			break;
+		case 0x04:
+			key.modifier=0;
+			key.keycode[0]=0x06;
+			break;
+		case 0x08:
+			key.modifier=0;
+			key.keycode[0]=0x07;
+			break;
+		case 0x10:
+			key.modifier=0;
+			key.keycode[0]=0x08;
+			break;
+		case 0x20:
+			key.modifier=0;
+			key.keycode[0]=0x12;
+			key.keycode[1]=0x11;
+			key.keycode[2]=0x5d;	//0x22; geeft een haakje !
+			key.keycode[3]=0x07;
+			key.keycode[4]=0x0c;
+			key.keycode[5]=0x28;
+			break;
+		case 0x40:
+			key.modifier=0;
+			key.keycode[0]=0x18;
+			break;
+		default:
+			key.modifier=0;
+			key.keycode[0]=0;
+			key.keycode[1]=0;
+			key.keycode[2]=0;
+			key.keycode[3]=0;
+			key.keycode[4]=0;
+			key.keycode[5]=0;
+			break;
+	}
+
 	memcpy(InReport,&key,sizeof key);
 }
 
@@ -181,6 +232,12 @@ int main (void)
 
 	LPC_GPIO1->DIR  &= ~KBD_S3;               /* Push Button on P0.1 is input */
 	LPC_GPIO2->DIR  &= ~KBD_S4;               /* Push Button on P0.1 is input */
+
+	LPC_GPIO1->DIR  &= ~KBD_SW1;				/* P1.6 */
+	LPC_GPIO1->DIR  &= ~KBD_SW2;				/* P1.7 */
+	LPC_GPIO1->DIR  &= ~KBD_SW3;				/* P1.8 */
+	LPC_GPIO1->DIR  &= ~KBD_SW4;				/* P1.9 */
+	LPC_GPIO1->DIR  &= ~KBD_SW5;				/* P1.10 */
 
 	LPC_GPIO2->DIR  |=  0xf0;               /* LEDs on PORT2 defined as Output */
 	LPC_GPIO3->DIR  |=  0x0f; 
