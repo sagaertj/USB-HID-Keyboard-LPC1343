@@ -35,6 +35,7 @@ U8 OutReport;                               /* HID Out Report      */
 #define LED_7           0x00000080  /* P2.7 */
 
 keybrdprt_t key;
+uint8_t prev_pbdata;
 
 /*------------------------------------------------------------------------------
   Get HID Input Report -> InReport
@@ -42,6 +43,8 @@ keybrdprt_t key;
 void GetInReport (void)
 {
 	uint8_t pbdata=0;
+	uint8_t hidpbdata=0;
+
 
 	if ((LPC_GPIO1->DATA & KBD_SW1) == 0)
 	{
@@ -72,7 +75,12 @@ void GetInReport (void)
 		pbdata|=0x40;
 	}
 	
-	switch(pbdata)
+	// only generate keys when the previous state of the keys was released.
+	// no repeting keys as long as the switch is active
+	if(prev_pbdata==0)
+		hidpbdata=pbdata;
+
+	switch(hidpbdata)
 	{
 		case 0x01:
 			key.modifier=0;
@@ -117,6 +125,8 @@ void GetInReport (void)
 			key.keycode[5]=0;
 			break;
 	}
+
+	prev_pbdata=pbdata;
 
 	memcpy(InReport,&key,sizeof key);
 }
