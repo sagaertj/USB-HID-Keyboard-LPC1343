@@ -17,6 +17,11 @@
 #define KBD_S3          0x00000010  /* P1.4 */
 #define KBD_S4          0x00000200  /* P2.9 */
 
+#define KBD_SW1          0x00000040  /* P1.6 */
+#define KBD_SW2          0x00000080  /* P1.7 */
+#define KBD_SW3          0x00000100  /* P1.8 */
+#define KBD_SW4          0x00000200  /* P1.9 */
+#define KBD_SW5          0x00000400  /* P1.10 */
 
 
 /* HID Demo Variables */
